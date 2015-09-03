@@ -82,6 +82,11 @@ abstract class Onepage extends Action
     protected $resultJsonFactory;
 
     /**
+     * @var \Magento\Sales\Model\OrderFactory
+     */
+    protected $orderFactory;
+
+    /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param CustomerRepositoryInterface $customerRepository
@@ -113,7 +118,8 @@ abstract class Onepage extends Action
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Magento\Framework\View\Result\LayoutFactory $resultLayoutFactory,
         \Magento\Framework\Controller\Result\RawFactory $resultRawFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory
+        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        \Magento\Sales\Model\OrderFactory $orderFactory
     ) {
         $this->_coreRegistry = $coreRegistry;
         $this->_translateInline = $translateInline;
@@ -125,6 +131,7 @@ abstract class Onepage extends Action
         $this->resultLayoutFactory = $resultLayoutFactory;
         $this->resultRawFactory = $resultRawFactory;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->orderFactory = $orderFactory;
         parent::__construct(
             $context,
             $customerSession,

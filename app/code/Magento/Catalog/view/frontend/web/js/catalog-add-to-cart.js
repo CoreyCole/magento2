@@ -59,42 +59,55 @@ define([
             $(self.options.minicartSelector).trigger('contentLoading');
             self.disableAddToCartButton(form);
 
+            var sku = $(".product div.value").text();
+            var xml = '<?xml version="1.0" encoding="UTF-8"?><QuantityRequestMessage xmlns="http://api.gsicommerce.com/schema/checkout/1.0"><QuantityRequest lineId="line1" itemId="' + sku + '"/></QuantityRequestMessage>';
+
             $.ajax({
-                url: form.attr('action'),
-                data: form.serialize(),
+                url: "http://ashdevni5rtc.us.gspt.net:8008/ROMi-devcgi/InvInq/stores/TBL/",
+                data: xml,
                 type: 'post',
-                dataType: 'json',
+                dataType: 'text',
                 beforeSend: function() {
                     if (self.isLoaderEnabled()) {
                         $('body').trigger(self.options.processStart);
                     }
                 },
-                success: function(res) {
-                    if (self.isLoaderEnabled()) {
-                        $('body').trigger(self.options.processStop);
-                    }
+                success: function(res1){
+                    var quantity = $(res1).find("quantity").text();
+                    alert("Item " + sku + " is in stock on JDA!\nQuantity: " + quantity);
+                    $.ajax({
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        type: 'post',
+                        dataType: 'json',
+                        success: function(res2) {
+                            if (self.isLoaderEnabled()) {
+                                $('body').trigger(self.options.processStop);
+                            }
 
-                    if (res.backUrl) {
-                        window.location = res.backUrl;
-                        return;
-                    }
-                    if (res.messages) {
-                        $(self.options.messagesSelector).html(res.messages);
-                    }
-                    if (res.minicart) {
-                        $(self.options.minicartSelector).replaceWith(res.minicart);
-                        $(self.options.minicartSelector).trigger('contentUpdated');
-                    }
-                    if (res.product && res.product.statusText) {
-                        $(self.options.productStatusSelector)
-                            .removeClass('available')
-                            .addClass('unavailable')
-                            .find('span')
-                            .html(res.product.statusText);
-                    }
-                    self.enableAddToCartButton(form);
+                            if (res2.backUrl) {
+                                window.location = res2.backUrl;
+                                return;
+                            }
+                            if (res2.messages) {
+                                $(self.options.messagesSelector).html(res2.messages);
+                            }
+                            if (res2.minicart) {
+                                $(self.options.minicartSelector).replaceWith(res2.minicart);
+                                $(self.options.minicartSelector).trigger('contentUpdated');
+                            }
+                            if (res2.product && res2.product.statusText) {
+                                $(self.options.productStatusSelector)
+                                    .removeClass('available')
+                                    .addClass('unavailable')
+                                    .find('span')
+                                    .html(res2.product.statusText);
+                            }
+                            self.enableAddToCartButton(form);
+                        }
+                    });
                 }
-            });
+            });  
         },
 
         disableAddToCartButton: function(form) {
